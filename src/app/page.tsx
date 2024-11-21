@@ -3,11 +3,18 @@
 import React, { useState } from 'react';
 import "@/styles/app.scss";
 
-type ScriptType = {
-  steps: {
-    explanation: string;
-    command: string;
-  }[];
+type Step = {
+  explanation: string;
+  command: string;
+}
+
+type ActionScript = {
+  action: string;
+  steps: Step[];
+}
+
+type Script = {
+  actions: ActionScript[];
 }
 
 function trace<T>(message: T): T {
@@ -24,7 +31,7 @@ Por favor ayudame a instalar un servidor web en mi computadora.
 
 export default function Home() {
   const [message, setMessage] = useState(dummyText);
-  const [response, setResponse] = useState<ScriptType>({ steps: [] });
+  const [response, setResponse] = useState<Script>({ actions: [] });
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -39,23 +46,23 @@ export default function Home() {
     });
 
     const data = await res.json();
-    if (response && response.steps) {
+    if (response) {
       setResponse(data.response);
     }
     setCurrentStep(0);
   };
 
-  const handleNext = () => {
-    if (response && currentStep < response.steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
+  // const handleNext = () => {
+  //   if (response && currentStep < response.steps.length - 1) {
+  //     setCurrentStep(currentStep + 1);
+  //   }
+  // };
 
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
+  // const handlePrevious = () => {
+  //   if (currentStep > 0) {
+  //     setCurrentStep(currentStep - 1);
+  //   }
+  // };
 
   return (
     <div className="dl-grid">
@@ -72,6 +79,9 @@ export default function Home() {
         </form>
       </div>
       <div className="dl-col-3 dl-panel">
+        <pre>{JSON.stringify(response, null, 2)}</pre>
+      </div>
+      {/* <div className="dl-col-3 dl-panel">
         {response.steps.map((step, index) => (
           <div key={index}>
             <pre>{step.command}</pre>
@@ -96,7 +106,7 @@ export default function Home() {
               </button>
             </div>
           )}
-      </div>
+      </div> */}
     </div>
   );
 }
