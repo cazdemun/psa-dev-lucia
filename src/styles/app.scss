@@ -1,0 +1,22 @@
+.dl-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+
+    @for $i from 0 through 100 {
+        &.dl-g-#{$i} {
+            gap: #{$i}px;
+        }
+    }
+
+    @for $i from 1 through 12 {
+        &>.dl-col-#{$i} {
+            grid-column: span #{$i};
+        }
+    }
+}
+
+.dl-panel {
+    padding: 1rem;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+}

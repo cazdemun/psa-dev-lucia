@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import "@/styles/app.scss";
 
 type ScriptType = {
   steps: {
@@ -23,7 +24,7 @@ Por favor ayudame a instalar un servidor web en mi computadora.
 
 export default function Home() {
   const [message, setMessage] = useState(dummyText);
-  const [response, setResponse] = useState<ScriptType | null>(null);
+  const [response, setResponse] = useState<ScriptType>({ steps: [] });
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -38,7 +39,9 @@ export default function Home() {
     });
 
     const data = await res.json();
-    setResponse(data.response);
+    if (response && response.steps) {
+      setResponse(data.response);
+    }
     setCurrentStep(0);
   };
 
@@ -55,32 +58,45 @@ export default function Home() {
   };
 
   return (
-    <div>
-      <h1>Chat con ChatGPT</h1>
-      <form onSubmit={handleSubmit}>
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Escribe tu mensaje"
-          style={{ minHeight: '10em', minWidth: '50em', resize: 'none' }}
-        />
-        <button type="submit">Enviar</button>
-      </form>
-      {trace(response) && response && response.steps && (
-        <div>
-          <h2>Respuesta:</h2>
-          <div>
-            <p>{response.steps[currentStep].explanation}</p>
-            <pre>{response.steps[currentStep].command}</pre>
+    <div className="dl-grid">
+      <div className="dl-col-4 dl-panel">
+        <h1>Chat con ChatGPT</h1>
+        <form onSubmit={handleSubmit}>
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Escribe tu mensaje"
+            style={{ minHeight: '10em', minWidth: '100%', resize: 'none' }}
+          />
+          <button type="submit">Enviar</button>
+        </form>
+      </div>
+      <div className="dl-col-3 dl-panel">
+        {response.steps.map((step, index) => (
+          <div key={index}>
+            <pre>{step.command}</pre>
           </div>
-          <button onClick={handlePrevious} disabled={currentStep === 0}>
-            Anterior
-          </button>
-          <button onClick={handleNext} disabled={currentStep === response.steps.length - 1}>
-            Siguiente
-          </button>
-        </div>
-      )}
+        ))}
+      </div>
+      <div className="dl-col-5 dl-panel">
+        {response.steps.length === 0
+          ? (<p>Esperando respuesta...</p>)
+          : (
+            <div>
+              <h2>Respuesta:</h2>
+              <div>
+                <p>{response.steps[currentStep].explanation}</p>
+                <pre>{response.steps[currentStep].command}</pre>
+              </div>
+              <button onClick={handlePrevious} disabled={currentStep === 0}>
+                Anterior
+              </button>
+              <button onClick={handleNext} disabled={currentStep === response.steps.length - 1}>
+                Siguiente
+              </button>
+            </div>
+          )}
+      </div>
     </div>
   );
 }
